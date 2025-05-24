@@ -1,0 +1,72 @@
+
+{% extends 'layout.html' %}
+
+{% block content %}
+  {% if session.get('UserName') == None  %}
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Welcome to <span class="brand">ChatPaglu</span></h1>
+        <p class="tagline">Chit Chat for Chatters — Stay connected in real time.</p>
+        <a href="{{ url_for('signup') }}" class="cta-button">Join the Chat</a>
+      </div>
+    </section>
+
+    <section class="features">
+      <h2>Why ChatPaglu?</h2>
+      <div class="feature-list">
+        <div class="feature">
+          <h3>💬 Real-Time Messaging</h3>
+          <p>Send and receive messages instantly without refreshing the page using our WebSocket-powered chat engine.</p>
+        </div>
+        <div class="feature">
+          <h3>🔐 Secure & Private</h3>
+          <p>Your conversations are protected with secure authentication and private chat options.</p>
+        </div>
+        <div class="feature">
+          <h3>🧠 Smart User Profiles</h3>
+          <p>Customize your username, view your past chats, and manage your settings easily.</p>
+        </div>
+        <div class="feature">
+          <h3>📱 Mobile Friendly</h3>
+          <p>ChatPaglu is responsive and works beautifully across desktops, tablets, and phones.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer-cta">
+      <p>Ready to start chatting?</p><br>
+      <a href="{{ url_for('login') }}" class="cta-button secondary">Log In</a>
+    </section>
+
+    {% else %}
+      <section class="hero">
+        <div class="hero-content">
+          <h1>Welcome back, {{ session['UserName'] }} 👋</h1>
+          <p class="tagline">You’re all set to explore the PagluZone .</p>
+          <a href="{{ url_for('yourPaglu') }}" class="cta-button">Check YourPaglus</a>
+        </div>
+      </section>
+
+     <section class="features">
+      <h2>Things You Can Do Now</h2>
+      <div class="feature-list">
+        <div class="feature">
+          <h3>🗨️ Start Chatting</h3>
+          <p>Join the public PagluZone or start private chats with others.</p>
+        </div>
+        <div class="feature">
+          <h3>🧑‍💼 Manage Profile</h3>
+          <p>View and update your profile, avatar, and chat history.</p>
+        </div>
+        <div class="feature">
+          <h3>⚙️ Customize Settings</h3>
+          <p>Change notification settings, privacy controls, and more.</p>
+        </div>
+      </div>
+    </section>
+
+    {% endif %}
+
+
+  {% endblock %}
+

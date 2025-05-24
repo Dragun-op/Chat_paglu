@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+    <link rel="stylesheet" href="static/css/login.css" />
+{% endblock %}
+
+
+{% block content %}
+  
+  <div class="container">
+    
+    <h2>{{title}}</h2>
+    
+    <form method="POST" action="/login">
+      
+      {{ form.hidden_tag() }}
+
+      <p>
+        {{ form.Email.label }} <br>
+        {{ form.Email }}
+      </p>
+
+      <p>
+        {{ form.Password.label }} <br>
+        {{ form.Password}}
+      </p>
+      
+      <p>
+        {{ form.RememberMe.label }} {{ form.RememberMe }}
+      </p>      
+      
+      <p>
+        {{ form.Submit() }}
+      </p>
+
+
+    <p class="form-link">Don't have an account? <a href="{{ url_for('signup' ) }}">Create one</a></p>
+  
+  </div>
+  
+  {% endblock %}

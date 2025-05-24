@@ -1,0 +1,19 @@
+  <header class="header">
+  <ul class="nav-links">
+    <li><a href="{{ url_for('pagluZone') }}">Paglu zone</a></li>
+    <li><a href="{{ url_for('yourPaglu') }}">Your Paglus</a></li>
+
+    {% if session.get('UserName') %}
+      <li class="dropdown">
+        <a href="#" class="dropbtn">Profile ⏷</a>
+        <div class="dropdown-content">
+          <a href="{{ url_for('profile') }}">View Profile</a>
+          <a href="{{ url_for('settings') }}">Settings</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </li>
+    {% else %}
+      <li><a href="{{ url_for('signup') }}">Signup/Login</a></li>
+    {% endif %}
+  </ul>
+  </header>
