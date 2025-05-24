@@ -1,6 +1,9 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-  
-
-  {% endblock %}
+  {% if session.get('UserName') != None %}
+    <p>Enter chats</p><br>
+    <a href="{{ url_for('chat') }}" class="cta-button">Chats</a><br>
+  {% endif %}
+  <br>
+{% endblock %}
