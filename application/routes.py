@@ -18,6 +18,8 @@ def yourPaglu():
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
+    if session.get('UserName'):
+        return redirect(url_for('pagluZone'))
     form = SignUpForm()
     if form.validate_on_submit()==True:
         existing_user = User.query.filter_by(UserName=form.UserName.data).first()
@@ -36,7 +38,7 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             flash("Your Account has been created successfully!!")
-            return redirect(url_for("pagluZone"))
+            return redirect(url_for("login"))
     
     if form.errors:
         for field, errors in form.errors.items():
@@ -47,6 +49,8 @@ def signup():
 
 @app.route('/login', methods=['GET','POST'])
 def login():
+    if session.get('UserName'):
+        return redirect(url_for('pagluZone'))
     form = LogInForm()
     if form.validate_on_submit()==True:
         Email = form.Email.data
@@ -55,7 +59,7 @@ def login():
         user= User.query.filter_by(Email=Email).first()
         if user and user.CheckPassword(Password):
             session['UserName'] = user.UserName
-            flash(f"{session.get('UserName')} logged in succesfully!")
+            flash(f"{session['UserName']} logged in succesfully!")
             return redirect(url_for("pagluZone"))
         else:
             flash("Ivalid Credentials")
