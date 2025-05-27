@@ -4,6 +4,7 @@
     <li><a href="{{ url_for('yourPaglu') }}">Your Paglus</a></li>
 
     {% if session.get('UserName') %}
+      <li><a href="{{ url_for('notifications') }}">Notifications</a></li>
       <li class="dropdown">
         <a href="#" class="dropbtn">Profile ⏷</a>
         <div class="dropdown-content">

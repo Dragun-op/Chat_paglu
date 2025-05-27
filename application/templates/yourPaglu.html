@@ -2,8 +2,27 @@
 
 {% block content %}
   {% if session.get('UserName') != None %}
-    <p>Enter chats</p><br>
-    <a href="{{ url_for('chat') }}" class="cta-button">Chats</a><br>
+  <form method="POST">
+  <input type="text" name="UserName" placeholder="Search by username" required>
+  <button type="submit">Send Paglu Request</button>
+  </form>
+
+  {% if friends %}
+    <ul>
+      {% for f in friends %}
+        {% if f.ReceiverId == current_user.UserId %}
+          {% set friend = f.Sender %}
+        {% else %}
+          {% set friend = f.Receiver %}
+        {% endif %}
+        <li>
+          {{ friend.UserName }}
+          <a href="{{ url_for('private_chat', username=friend.UserName) }}">Chat</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+  <p>No friends yet.</p>
   {% endif %}
-  <br>
+    {% endif %}
 {% endblock %}

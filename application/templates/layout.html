@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chatpaglu</title>
   {% block styles %}
-  <link rel="stylesheet" href="static/css/styles.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}" />
   {% endblock %}
-  <link rel="stylesheet" href="static/css/nav.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
 </head>
 <body>
     {%include "includes/nav.html"%}
@@ -28,8 +28,6 @@
         {% block content %}
             
         {% endblock %}
-      <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
-      <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
   {%include "includes/footer.html"%}
 </body>

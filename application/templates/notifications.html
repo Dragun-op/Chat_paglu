@@ -1,0 +1,25 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+    <link rel="stylesheet" href="static/css/notifications.css" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2>{{ title }}</h2>
+
+  {% if requests %}
+    <h3>Friend Requests</h3>
+    <ul class="notifications-list">
+      {% for req in requests %}
+        <li class="notification-item">
+          <span>{{ req.Sender.UserName }} sent you a friend request.</span>
+          <a href="{{ url_for('accept_request', fid=req.FId) }}" class="btn btn-accept">Accept</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="no-notifications">No notifications at the moment.</p>
+  {% endif %}
+</div>
+{% endblock %}
