@@ -1,5 +1,9 @@
 {% extends 'layout.html' %}
 
+{% block styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/paglu.css') }}">
+{% endblock %}
+
 {% block content %}
   {% if session.get('UserName') != None %}
   <form method="POST">

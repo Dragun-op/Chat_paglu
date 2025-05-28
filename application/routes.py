@@ -100,8 +100,9 @@ def login():
 
         user= User.query.filter_by(Email=Email).first()
         if user and user.CheckPassword(Password):
-            session['UserName'] = user.UserName
             session['UserId'] = user.UserId
+            session['UserName'] = user.UserName
+            print(session['UserId'])
             flash(f"{session['UserName']} logged in succesfully!")
             return redirect(url_for("pagluZone"))
         else:
@@ -128,8 +129,13 @@ def private_chat(username):
     if not is_friend:
         flash("You can only chat with friends.")
         return redirect(url_for('yourPaglu'))
+    
+    messages = Message.query.filter(
+        ((Message.SenderId == current_user.UserId) & (Message.ReceiverId == chat_with.UserId)) |
+        ((Message.SenderId == chat_with.UserId) & (Message.ReceiverId == current_user.UserId))
+                                    ).order_by(Message.Timestamp).all()
 
-    return render_template('chat.html',title=f"Chat with {chat_with.UserName}",receiver=chat_with)
+    return render_template('chat.html',title=f"Chat with {chat_with.UserName}",receiver=chat_with,sender=current_user,messages=messages)
 
 
 @app.route('/notifications')

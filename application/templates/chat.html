@@ -1,13 +1,17 @@
 {% extends 'layout.html' %}
+  {% block styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+  {% endblock %}
     {% block content %}
       <div class="chat-wrapper">
         <h2 class="chat-title">Chat with {{ receiver.UserName }}</h2>
 
         <div id="chat-box" class="chat-box">
           {% for msg in messages %}
-          <p><strong>{{ msg.Sender.UserName }}:</strong> {{ msg.Content }}</p>
+            <p><b>{{ msg.Sender.UserName }}:</b> {{ msg.Content }}</p>
           {% endfor %}
         </div>
+
 
         <div class="chat-input-area">
           <input id="message" type="text" placeholder="Type your message..." autocomplete="off" />

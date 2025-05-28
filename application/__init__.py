@@ -9,6 +9,6 @@ app.config.from_object(config.Config)
 
 db = SQLAlchemy(app)
 
-socketio=SocketIO(app)
+socketio=SocketIO(app,cors_allowed_origins="*")
 
 from application import routes
