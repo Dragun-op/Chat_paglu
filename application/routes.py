@@ -1,9 +1,11 @@
 from application import app  
 from flask import render_template,redirect,flash,request,url_for,session
 from flask_socketio import send, join_room, emit
-from application import db,socketio
-from application.models import User, Friendship, Message
+from application import db,socketio,mail
+from flask_mail import Message
+from application.models import User, Friendship, Messages
 from application.forms import LogInForm , SignUpForm
+import random
 
 def get_private_room(user1, user2):
     return "_".join(sorted([str(user1), str(user2)]))
@@ -66,18 +68,32 @@ def signup():
             flash("Username already exists. Please choose another.")
             return redirect(url_for("login"))
         
-        else:
-            new_user= User(
-                    UserName=form.UserName.data,
-                    FirstName=form.FirstName.data,
-                    LastName=form.LastName.data,
-                    Email=form.Email.data,)
-            
-            new_user.SetPassword(form.Password.data)
-            db.session.add(new_user)
-            db.session.commit()
-            flash("Your Account has been created successfully!!")
-            return redirect(url_for("login"))
+        otp = random.randint(100000, 999999)
+        session['otp'] = str(otp)
+        session['pending_user'] = {
+            'UserName': form.UserName.data,
+            'FirstName': form.FirstName.data,
+            'LastName': form.LastName.data,
+            'Email': form.Email.data,
+            'Password': form.Password.data
+        }
+
+        msg = Message(
+            "Chatpaglu Email Verification OTP",
+            recipients=[form.Email.data],
+            sender=app.config["MAIL_DEFAULT_SENDER"]
+        )
+
+        msg.body = f"Your OTP for Chatpaglu registration is: {otp}"
+        try:
+            mail.send(msg)
+        except Exception as e:
+            print(e)
+            flash("Failed to send OTP. Please try again.")
+            return redirect(url_for("signup"))
+
+        flash("OTP sent to your email. Please verify to complete signup.")
+        return redirect(url_for('verify_otp'))
     
     if form.errors:
         for field, errors in form.errors.items():
@@ -86,6 +102,32 @@ def signup():
                 
     return render_template('signup.html',title="signup",form=form,signup=True)
 
+
+@app.route('/verify-otp', methods=['GET', 'POST'])
+def verify_otp():
+    if request.method == 'POST':
+        user_otp = request.form.get('otp')
+        if str(session.get('otp')) == user_otp:
+            data = session.get('pending_user')
+            if data:
+                new_user = User(
+                    UserName=data['UserName'],
+                    FirstName=data['FirstName'],
+                    LastName=data['LastName'],
+                    Email=data['Email']
+                )
+                new_user.SetPassword(data['Password'])
+                db.session.add(new_user)
+                db.session.commit()
+
+                session.pop('otp')
+                session.pop('pending_user')
+                flash("Email verified. Account created successfully!")
+                return redirect(url_for('login'))
+        else:
+            flash("Invalid OTP. Please try again.")
+
+    return render_template('verify_otp.html')
 
 
 @app.route('/login', methods=['GET','POST'])
@@ -130,10 +172,10 @@ def private_chat(username):
         flash("You can only chat with friends.")
         return redirect(url_for('yourPaglu'))
     
-    messages = Message.query.filter(
-        ((Message.SenderId == current_user.UserId) & (Message.ReceiverId == chat_with.UserId)) |
-        ((Message.SenderId == chat_with.UserId) & (Message.ReceiverId == current_user.UserId))
-                                    ).order_by(Message.Timestamp).all()
+    messages = Messages.query.filter(
+        ((Messages.SenderId == current_user.UserId) & (Messages.ReceiverId == chat_with.UserId)) |
+        ((Messages.SenderId == chat_with.UserId) & (Messages.ReceiverId == current_user.UserId))
+                                    ).order_by(Messages.Timestamp).all()
 
     return render_template('chat.html',title=f"Chat with {chat_with.UserName}",receiver=chat_with,sender=current_user,messages=messages)
 
@@ -188,7 +230,7 @@ def handle_join(data):
 def handle_private_message(data):
     room = get_private_room(data['sender'], data['receiver'])
 
-    msg = Message(
+    msg = Messages(
         SenderId=data['sender_id'],
         ReceiverId=data['receiver_id'],
         Content=data['message']

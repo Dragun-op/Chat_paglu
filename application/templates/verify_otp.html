@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/signup.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="signup-wrapper">
+  <h2>Email Verification</h2>
+
+  <form method="POST">
+    <input type="text" name="otp" placeholder="Enter OTP sent to your email" required />
+    <button type="submit">Verify</button>
+  </form>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <p class="form-link">Didn’t get the OTP? <a href="#">Resend OTP</a></p>
+</div>
+{% endblock %}

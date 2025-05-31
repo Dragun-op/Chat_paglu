@@ -36,8 +36,8 @@ class Friendship(db.Model):
 
 
 
-class Message(db.Model):
-    __tablename__ = 'Message'
+class Messages(db.Model):
+    __tablename__ = 'Messages'
 
     MId = db.Column(db.Integer, primary_key=True)
     SenderId = db.Column(db.Integer, db.ForeignKey('User.UserId'), nullable=False)
