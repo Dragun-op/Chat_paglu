@@ -1,2 +1,45 @@
 {% extends 'layout.html' %}
 
+{% block styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}" />
+{% endblock %}
+{% block content %}
+    <div class="profile-wrapper">
+        <h2>Update Your Profile</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.UserName.label }} 
+                {{ form.UserName(size=30) }}
+            </p>
+            
+            <p>
+                {{ form.FirstName.label }}
+                {{ form.FirstName() }}
+            </p>
+            <p>
+                {{ form.LastName.label }} 
+                {{ form.LastName() }}
+            </p>
+            <p>
+                {{ form.Email.label }}
+                {{ form.Email() }}
+            </p>
+            <br>
+            <p>
+                {{ form.CurrentPassword.label }}
+                {{ form.CurrentPassword() }}
+            </p>
+            <p>
+                {{ form.NewPassword.label }} 
+                {{ form.NewPassword() }}
+            </p>
+            <p>
+                {{ form.ConfirmPassword.label }} 
+                {{ form.ConfirmPassword() }}
+            </p>
+
+            <p>{{ form.Submit(class_="btn") }}</p>
+        </form>
+    </div>
+{% endblock %}

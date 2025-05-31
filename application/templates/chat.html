@@ -8,7 +8,9 @@
 
         <div id="chat-box" class="chat-box">
           {% for msg in messages %}
-            <p><b>{{ msg.Sender.UserName }}:</b> {{ msg.Content }}</p>
+            <p class="message {{ 'sent' if msg.SenderId == sender.UserId else 'received' }}">
+              <b>{{ msg.Sender.UserName }}:</b> {{ msg.Content | e }}
+            </p>
           {% endfor %}
         </div>
 

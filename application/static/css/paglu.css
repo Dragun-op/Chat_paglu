@@ -1,35 +1,42 @@
-/* paglu.css */
-
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f8f9fa;
+  background: #f4f6f8;
   margin: 0;
   padding: 0;
 }
 
-form {
+.container {
+  max-width: 900px;
   margin: 2rem auto;
+  padding: 1rem;
+}
+
+form {
   display: flex;
-  justify-content: center;
-  gap: 1rem;
   flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  justify-content: center;
 }
 
 form input[type="text"] {
-  padding: 0.6rem;
-  width: 250px;
+  flex: 1;
+  min-width: 280px;
+  padding: 0.6rem 1rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
+  background: #fff;
 }
 
 form button {
-  padding: 0.6rem 1.2rem;
+  padding: 0.6rem 1.5rem;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
+  font-weight: bold;
   cursor: pointer;
 }
 
@@ -37,14 +44,13 @@ form button:hover {
   background-color: #0056b3;
 }
 
-ul {
+ul.friend-list {
   list-style: none;
   padding: 0;
-  max-width: 600px;
-  margin: 2rem auto;
+  margin: 0;
 }
 
-ul li {
+.friend-list li {
   background-color: #fff;
   border-radius: 10px;
   padding: 1rem 1.5rem;
@@ -52,40 +58,103 @@ ul li {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
 }
 
-ul li:hover {
-  transform: scale(1.01);
+.friend-list li:hover {
+  transform: translateY(-2px);
 }
 
-ul li a {
+.friend-list li a {
   background-color: #28a745;
   color: white;
-  padding: 0.4rem 0.9rem;
+  padding: 0.4rem 1rem;
   border-radius: 6px;
   text-decoration: none;
-  font-size: 0.9rem;
+  font-weight: bold;
+  font-size: 0.95rem;
 }
 
-ul li a:hover {
-  background-color: #1e7e34;
+.friend-list li a:hover {
+  background-color: #218838;
 }
 
 p {
   text-align: center;
   font-size: 1.1rem;
-  margin-top: 2rem;
   color: #555;
+  margin-top: 2rem;
 }
 
+.chat-btn, .remove-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.chat-btn {
+  height: 48%;
+  background-color: #28a745;
+  color: white;
+  border: none;
+}
+
+.chat-btn:hover {
+  background-color: #218838;
+}
+
+.remove-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+}
+.friend-list li {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.friend-username {
+  font-weight: 500;
+  font-size: 1rem;
+  flex: 1;
+  min-width: 120px;
+  margin-bottom: 0.5rem;
+}
+
+.friend-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.friend-actions form,
+.friend-actions a {
+  display: inline-block;
+}
+
+
 .alert {
-  max-width: 600px;
+  max-width: 800px;
   margin: 1rem auto;
   padding: 1rem;
   border-radius: 8px;
   background-color: #fff3cd;
   color: #856404;
   border: 1px solid #ffeeba;
+  font-size: 0.95rem;
 }

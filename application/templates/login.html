@@ -24,11 +24,10 @@
         {{ form.Password.label }} <br>
         {{ form.Password}}
       </p>
-      
-      <p>
-        {{ form.RememberMe.label }} {{ form.RememberMe }}
-      </p>      
-      
+      <div class="remember-wrapper">
+        <input type="checkbox" id="remember" name="RememberMe">
+        <label class="remember" for="remember">Remember Me</label>
+      </div>
       <p>
         {{ form.Submit() }}
       </p>

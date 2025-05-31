@@ -1,1 +1,15 @@
 {% extends 'layout.html' %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}" />
+{% endblock %}
+
+{% block content %}
+
+  <div class="delete-account-section">
+    <form method="POST" action="{{ url_for('delete_account') }}" onsubmit="return confirm('Are you sure you want to delete your account? This action is irreversible.');">
+      <input type="password" name="delete_password" placeholder="Confirm your password to delete" required>
+      <button type="submit" class="btn btn-danger">Delete Account</button>
+    </form>
+  </div>
+{% endblock %}

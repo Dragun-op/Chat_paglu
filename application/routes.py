@@ -4,8 +4,9 @@ from flask_socketio import send, join_room, emit
 from application import db,socketio,mail
 from flask_mail import Message
 from application.models import User, Friendship, Messages
-from application.forms import LogInForm , SignUpForm
+from application.forms import LogInForm , SignUpForm , UpdateProfileForm
 import random
+from datetime import timedelta
 
 def get_private_room(user1, user2):
     return "_".join(sorted([str(user1), str(user2)]))
@@ -54,7 +55,22 @@ def yourPaglu():
 
         return render_template('yourPaglu.html', title="yourPaglu", friends=friends, current_user=current_user)
 
+@app.route('/remove_friend/<int:friend_id>', methods=['POST'])
+def remove_friend(friend_id):
+    if 'UserName' not in session:
+        return redirect(url_for('login'))
 
+    friendship = Friendship.query.get_or_404(friend_id)
+    current_user_id = session['UserId']
+
+    if friendship.SenderId == current_user_id or friendship.ReceiverId == current_user_id:
+        db.session.delete(friendship)
+        db.session.commit()
+        flash("Friend removed successfully.")
+    else:
+        flash("You are not authorized to perform this action.")
+
+    return redirect(url_for('yourPaglu'))
 
 @app.route('/signup', methods=['GET','POST'])
 def signup():
@@ -136,20 +152,28 @@ def login():
         return redirect(url_for('pagluZone'))
     
     form = LogInForm()
-    if form.validate_on_submit()==True:
+    if form.validate_on_submit():
         Email = form.Email.data
         Password = form.Password.data
 
-        user= User.query.filter_by(Email=Email).first()
+        user = User.query.filter_by(Email=Email).first()
         if user and user.CheckPassword(Password):
             session['UserId'] = user.UserId
             session['UserName'] = user.UserName
-            print(session['UserId'])
-            flash(f"{session['UserName']} logged in succesfully!")
+
+            if form.RememberMe.data:
+                session.permanent = True
+                app.permanent_session_lifetime = timedelta(days=30)
+            else:
+                session.permanent = False
+
+            flash(f"{session['UserName']} logged in successfully!")
             return redirect(url_for("pagluZone"))
         else:
-            flash("Ivalid Credentials")
-    return render_template('login.html',title="login",form=form,login=True)
+            flash("Invalid Credentials")
+
+    return render_template('login.html', title="login", form=form, login=True)
+
 
 
 
@@ -201,17 +225,123 @@ def accept_request(fid):
     return redirect(url_for('notifications'))
 
 
-@app.route('/profile')
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    return render_template('profile.html')
+    if 'UserName' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(UserName=session['UserName']).first()
+    form = UpdateProfileForm(obj=user)
+    form.original_username = user.UserName
+    form.original_email = user.Email
+
+    if form.validate_on_submit():
+        if not user.CheckPassword(form.CurrentPassword.data):
+            flash("Incorrect current password.", "danger")
+        else:
+
+            if form.Email.data != user.Email:
+                otp = random.randint(100000, 999999)
+                session['email_otp'] = str(otp)
+                session['new_email'] = form.Email.data
+                session['pending_updates'] = {
+                    'UserName': form.UserName.data,
+                    'FirstName': form.FirstName.data,
+                    'LastName': form.LastName.data,
+                    'NewPassword': form.NewPassword.data
+                }
+
+                msg = Message("Verify Your New Email", recipients=[form.Email.data])
+                msg.body = f"Your verification OTP is: {otp}"
+                try:
+                    mail.send(msg)
+                    flash("OTP sent to new email. Please verify.", "info")
+                    return redirect(url_for('verify_email_update'))
+                except Exception as e:
+                    flash("Failed to send OTP. Please try again.", "danger")
+                    return redirect(url_for('profile'))
+                
+            user.UserName = form.UserName.data
+            user.FirstName = form.FirstName.data
+            user.LastName = form.LastName.data
+            if form.NewPassword.data:
+                user.SetPassword(form.NewPassword.data)
+            db.session.commit()
+            session['UserName'] = user.UserName
+            flash("Profile updated successfully!", "success")
+            return redirect(url_for('profile'))
+
+    if form.errors:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f"{field}: {error}", "danger")
+
+    return render_template('profile.html', title="View Profile", form=form)
 
 
+@app.route('/verify-email-update', methods=['GET', 'POST'])
+def verify_email_update():
+    if 'email_otp' not in session or 'new_email' not in session:
+        return redirect(url_for('profile'))
 
-@app.route('/settings')
+    if request.method == 'POST':
+        entered_otp = request.form.get('otp')
+        if entered_otp == session['email_otp']:
+            user = User.query.get(session['UserId'])
+
+            updates = session.get('pending_updates', {})
+            user.Email = session['new_email']
+            user.UserName = updates.get('UserName', user.UserName)
+            user.FirstName = updates.get('FirstName', user.FirstName)
+            user.LastName = updates.get('LastName', user.LastName)
+
+            if updates.get('NewPassword'):
+                user.SetPassword(updates['NewPassword'])
+
+            db.session.commit()
+            session['UserName'] = user.UserName
+            flash("Email updated and verified successfully!", "success")
+
+            session.pop('email_otp')
+            session.pop('new_email')
+            session.pop('pending_updates')
+
+            return redirect(url_for('profile'))
+        else:
+            flash("Invalid OTP. Please try again.", "danger")
+
+    return render_template('verify_email_update.html')
+
+
+@app.route('/settings', methods=['GET','POST'])
 def settings():
-    return render_template('settings.html')
+    if 'UserName' not in session:
+        return redirect(url_for('login'))
 
+    return render_template('settings.html', title="Settings")
 
+@app.route('/delete_account', methods=['POST'])
+def delete_account():
+    if 'UserName' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.filter_by(UserName=session['UserName']).first()
+    entered_password = request.form.get('delete_password')
+
+    if not user or not user.CheckPassword(entered_password):
+        flash("Incorrect password. Account not deleted.", "danger")
+        return redirect(url_for('profile'))
+
+    Friendship.query.filter((Friendship.SenderId == user.UserId) | (Friendship.ReceiverId == user.UserId)).delete()
+
+    Messages.query.filter((Messages.SenderId == user.UserId) | (Messages.ReceiverId == user.UserId)).delete()
+
+    db.session.delete(user)
+    db.session.commit()
+
+    session.clear()
+    flash("Your account has been permanently deleted.", "info")
+    return redirect(url_for('signup'))
 
 @app.route('/logout')
 def logout():
