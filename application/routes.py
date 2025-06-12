@@ -372,3 +372,20 @@ def handle_private_message(data):
         'sender': data['sender'],
         'message': data['message']
     }, room=room)
+
+@socketio.on('mark_seen')
+def handle_message_seen(data):
+    sender_id = data['sender_id']
+    receiver_id = data['receiver_id']
+
+    unseen = Message.query.filter_by(SenderId=sender_id, ReceiverId=receiver_id, Seen=False).all()
+    for msg in unseen:
+        msg.Seen = True
+
+    db.session.commit()
+
+    room = get_private_room(sender_id, receiver_id)
+    emit('seen_ack', {
+        'sender_id': sender_id,
+        'receiver_id': receiver_id
+    }, room=room)

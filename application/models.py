@@ -12,7 +12,7 @@ class User(db.Model):
     FirstName=db.Column(db.String(50),nullable=False)
     LastName=db.Column(db.String(50),nullable=False)
     Email = db.Column(db.String(120),unique=True, nullable=False)
-    Password=db.Column(db.String,nullable=False)
+    Password=db.Column(db.String(255),nullable=False)
 
     def SetPassword(self,Password):
         self.Password = generate_password_hash(Password)
@@ -44,6 +44,7 @@ class Messages(db.Model):
     ReceiverId = db.Column(db.Integer, db.ForeignKey('User.UserId'), nullable=False)
     Content = db.Column(db.Text, nullable=False)
     Timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    Seen = db.Column(db.Boolean, default=False)
 
     Sender = db.relationship('User', foreign_keys=[SenderId], backref='SentMessages')
     Receiver = db.relationship('User', foreign_keys=[ReceiverId], backref='ReceivedMessages')

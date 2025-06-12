@@ -5,7 +5,22 @@ const receiver = CHAT_DATA.receiver;
 const senderId = CHAT_DATA.sender_id;
 const receiverId = CHAT_DATA.receiver_id;
 
+function formatTimestamp(ts) {
+  const date = new Date(ts);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 socket.emit('join_private', { sender, receiver });
+
+window.onload = function () {
+  const chatBox = document.getElementById("chat-box");
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  socket.emit('mark_seen', {
+    sender: senderId,
+    receiver: receiverId
+  });
+};
 
 socket.on('new_private_message', data => {
   const chatBox = document.getElementById("chat-box");
@@ -14,12 +29,39 @@ socket.on('new_private_message', data => {
   const msgClass = data.sender === sender ? 'message sent' : 'message received';
   msgElement.className = msgClass;
 
-  msgElement.innerHTML = `<b>${data.sender}:</b> ${data.message}`;
+  const time = formatTimestamp(data.timestamp || Date.now());
+
+  msgElement.innerHTML = `
+    <div>
+      <b>${data.sender}</b>: ${data.message}
+    </div>
+    <div class="msg-time">${time}${data.seen ? ' <span class="seen-tick">✓</span>' : ''}</div>
+  `;
 
   chatBox.appendChild(msgElement);
   chatBox.scrollTop = chatBox.scrollHeight;
+
+  if (data.sender !== sender) {
+    socket.emit('mark_seen', {
+      sender: senderId,
+      receiver: receiverId
+    });
+  }
 });
 
+socket.on('seen_ack', () => {
+  const allSentMessages = document.querySelectorAll('.message.sent');
+
+  allSentMessages.forEach(msg => {
+    const tick = msg.querySelector('.seen-tick');
+    if (!tick) {
+      const timeEl = msg.querySelector('.msg-time');
+      if (timeEl) {
+        timeEl.innerHTML += ` <span class="seen-tick">✓</span>`;
+      }
+    }
+  });
+});
 
 function sendMessage() {
   const input = document.getElementById("message");
@@ -36,9 +78,3 @@ function sendMessage() {
 
   input.value = '';
 }
-
-
-window.onload = function () {
-  const chatBox = document.getElementById("chat-box");
-  chatBox.scrollTop = chatBox.scrollHeight;
-};
